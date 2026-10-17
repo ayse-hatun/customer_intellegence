@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Purchase Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --p50:  #faf7ff;
+      --p100: #f1e9ff;
+      --p200: #e3d4ff;
+      --p300: #cdb4fe;
+      --p400: #a98bfa;
+      --p500: #8b5cf6;
+      --p600: #7c3aed;
+      --p700: #6d28d9;
+      --p800: #52208f;
+      --p900: #3b1673;
+      --ink: #2f1763;
+      --muted: #7a6b9c;
+      --line: #ece2ff;
+      --white: #ffffff;
+      --err: #c2255c;
+      --radius: 28px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--p50);
+      overflow-x: hidden;
+    }
+
+    /* ---------- Atmosphere ---------- */
+    .atmos { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+    .atmos::before {
+      content: ""; position: absolute; inset: 0;
+      background:
+        radial-gradient(60% 50% at 8% 0%, rgba(169, 139, 250, 0.40), transparent 70%),
+        radial-gradient(50% 45% at 100% 10%, rgba(205, 180, 254, 0.55), transparent 70%),
+        radial-gradient(60% 50% at 60% 100%, rgba(139, 92, 246, 0.14), transparent 70%);
+    }
+    /* ---------- Shell ---------- */
+    .page { max-width: 1240px; margin: 0 auto; padding: 22px 28px 56px; }
+
+    .nav {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 12px 10px 14px;
+      background: rgba(255, 255, 255, 0.8);
+      -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      box-shadow: 0 8px 30px rgba(109, 40, 217, 0.08);
+      animation: rise .6s ease both;
+    }
+    .logo {
+      width: 34px; height: 34px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--p400), var(--p700));
+      display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 15px;
+      box-shadow: 0 6px 16px rgba(124, 58, 237, .4);
+    }
+    .nav b { font-size: 15px; letter-spacing: -0.01em; }
+    .nav .sp { flex: 1; }
+    .nav .tag {
+      font-size: 12px; font-weight: 700; color: var(--p700);
+      background: var(--p100); padding: 8px 14px; border-radius: 999px;
+    }
+
+    .hero { padding: 56px 4px 34px; max-width: 820px; animation: rise .7s .05s ease both; }
+
+    h1 {
+      margin: 0; font-size: clamp(40px, 6vw, 72px); line-height: 1; letter-spacing: -0.045em; font-weight: 800;
+      background: linear-gradient(100deg, var(--p900) 10%, var(--p600) 55%, var(--p400) 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .lead { margin: 20px 0 0; color: var(--muted); line-height: 1.7; font-size: 17px; max-width: 640px; }
+
+    .layout { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 26px; align-items: start; }
+
+    @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+    /* ---------- Form card ---------- */
+    .panel { border-radius: var(--radius); position: relative; animation: rise .7s .15s ease both; }
+
+    .form-panel {
+      background: var(--white);
+      border: 1px solid var(--line);
+      box-shadow: 0 30px 80px rgba(109, 40, 217, 0.10), 0 2px 0 #fff inset;
+      padding: 30px;
+      position: sticky; top: 20px;
+    }
+    .form-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .form-head h2 { margin: 0; font-size: 20px; letter-spacing: -0.02em; }
+    .form-head span { font-size: 12px; font-weight: 700; color: var(--muted); }
+
+    .input-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+
+    .field {
+      --c: var(--p500);
+      position: relative; overflow: hidden;
+      display: grid; gap: 4px;
+      padding: 14px 16px 18px;
+      background: var(--p50);
+      border: 1.5px solid var(--line);
+      border-radius: 20px;
+      transition: border-color .2s, box-shadow .2s, transform .2s, background .2s;
+    }
+    .field:hover { transform: translateY(-2px); border-color: var(--p300); }
+    .field:focus-within {
+      background: #fff; border-color: var(--c);
+      box-shadow: 0 0 0 5px rgba(139, 92, 246, .14), 0 14px 30px rgba(124, 58, 237, .14);
+    }
+
+    label {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
+    }
+    label i { width: 10px; height: 10px; border-radius: 4px; background: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 22%, transparent); }
+
+    .input-wrap { position: relative; }
+    input {
+      width: 100%; border: 0; background: transparent; outline: none;
+      padding: 4px 0 2px; font: inherit; font-size: 26px; font-weight: 800; letter-spacing: -0.03em; color: var(--ink);
+      -moz-appearance: textfield;
+    }
+    input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input::placeholder { color: #cbbfe6; font-weight: 700; }
+
+    .meter { position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: var(--p100); }
+    .meter b { display: block; height: 100%; width: 0; background: var(--c); border-radius: 0 6px 6px 0; transition: width .5s cubic-bezier(.2,.8,.2,1); }
+
+    .field:nth-child(1) { --c: #4c1d95; }
+    .field:nth-child(2) { --c: #6d28d9; }
+    .field:nth-child(3) { --c: #8b5cf6; }
+    .field:nth-child(4) { --c: #a78bfa; }
+    .field:nth-child(5) { --c: #c4b5fd; }
+    .field:nth-child(6) { --c: #ddd0ff; }
+
+    .mixwrap { margin-top: 20px; }
+    .mixtop { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    .mixtop strong { color: var(--p700); letter-spacing: 0; font-size: 13px; }
+    .mix { display: flex; gap: 3px; height: 16px; border-radius: 999px; overflow: hidden; background: var(--p100); }
+    .mix span { display: block; height: 100%; width: 0; transition: width .5s cubic-bezier(.2,.8,.2,1); }
+
+    .helper {
+      margin-top: 18px; padding: 14px 16px; border-radius: 18px;
+      background: linear-gradient(135deg, var(--p100), #fff);
+      border: 1px solid var(--line); color: var(--p800); font-size: 13px; line-height: 1.6;
+    }
+
+    .actions { display: flex; gap: 12px; margin-top: 20px; }
+    button { border: 0; border-radius: 18px; padding: 16px 20px; font: inherit; font-weight: 800; cursor: pointer; transition: .25s ease; }
+
+    .primary {
+      flex: 1; color: #fff; font-size: 15px;
+      background: linear-gradient(135deg, var(--p500), var(--p700) 60%, var(--p800));
+      box-shadow: 0 14px 30px rgba(109, 40, 217, .35), inset 0 1px 0 rgba(255,255,255,.35);
+      position: relative; overflow: hidden;
+    }
+    .primary::after {
+      content: ""; position: absolute; top: 0; bottom: 0; width: 60px; left: -80px;
+      background: linear-gradient(100deg, transparent, rgba(255,255,255,.35), transparent);
+      transform: skewX(-20deg); transition: left .6s ease;
+    }
+    .primary:hover { transform: translateY(-2px); box-shadow: 0 20px 40px rgba(109, 40, 217, .45), inset 0 1px 0 rgba(255,255,255,.4); }
+    .primary:hover::after { left: 110%; }
+    .primary:active { transform: translateY(0); }
+
+    .secondary { color: var(--p700); background: var(--p100); }
+    .secondary:hover { background: var(--p200); }
+
+    .status { min-height: 22px; margin-top: 12px; font-size: 13px; font-weight: 600; color: var(--muted); }
+    .status.success { color: var(--p700); }
+    .status.error { color: var(--err); }
+
+    /* ---------- Result card ---------- */
+    .result-panel {
+      padding: 30px; min-height: 670px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      color: #fff; overflow: hidden; isolation: isolate;
+      background:
+        radial-gradient(80% 50% at 100% 0%, rgba(205, 180, 254, .55), transparent 65%),
+        radial-gradient(70% 50% at 0% 100%, rgba(139, 92, 246, .55), transparent 65%),
+        linear-gradient(160deg, #6d28d9 0%, #52208f 55%, #3b1673 100%);
+      box-shadow: 0 40px 90px rgba(82, 32, 143, .38), inset 0 1px 0 rgba(255,255,255,.3);
+      animation-delay: .25s;
+    }
+
+    .result-title { margin: 4px 0 8px; font-size: clamp(28px, 3.4vw, 40px); line-height: 1.08; letter-spacing: -0.035em; font-weight: 800; }
+    .result-sub { margin: 0; color: var(--p200); line-height: 1.6; max-width: 480px; font-size: 14px; }
+
+    .profile-card {
+      margin-top: 24px; padding: 22px; border-radius: 24px;
+      background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.22);
+      -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+    }
+
+    .ptop { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+    .profile-label { font-size: 11px; text-transform: uppercase; letter-spacing: .12em; font-weight: 800; color: var(--p300); }
+    .profile-name { margin: 6px 0 10px; font-size: clamp(28px, 3vw, 36px); line-height: 1.05; font-weight: 800; letter-spacing: -0.035em; transition: color .3s; }
+    .profile-name.moderate { color: #e4d7ff; }
+    .profile-name.high { color: #fff; text-shadow: 0 0 30px rgba(205, 180, 254, .9); }
+
+    .confidence-pill {
+      display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px;
+      background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.3); font-size: 12px; font-weight: 800;
+    }
+
+    .gauge { width: 104px; height: 104px; flex: none; }
+    .gauge .gbg { fill: none; stroke: rgba(255,255,255,.18); stroke-width: 9; }
+    .gauge .gfg { fill: none; stroke: url(#gg); stroke-width: 9; stroke-linecap: round; transition: stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1); }
+    .gauge .gn { fill: #fff; font-size: 22px; font-weight: 800; text-anchor: middle; }
+    .gauge .gs { fill: var(--p300); font-size: 8px; font-weight: 700; text-anchor: middle; letter-spacing: .08em; text-transform: uppercase; }
+
+    .divider { height: 1px; background: rgba(255,255,255,.2); margin: 20px 0; }
+
+    .radarbox { display: grid; grid-template-columns: 1fr; justify-items: center; }
+    .radar { width: 100%; max-width: 330px; overflow: visible; }
+    .radar .rg { fill: none; stroke: rgba(255,255,255,.2); stroke-width: 1; }
+    .radar .ra { stroke: rgba(255,255,255,.14); stroke-width: 1; }
+    .radar .rl { fill: var(--p200); font-size: 10px; font-weight: 700; }
+    .radar .rv { fill: rgba(205, 180, 254, .38); stroke: #fff; stroke-width: 2; stroke-linejoin: round; transform-origin: 150px 135px; animation: pop .8s cubic-bezier(.2,.9,.3,1.2) both; }
+    .radar .rd { fill: #fff; }
+    @keyframes pop { from { transform: scale(.05); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .cap { text-align: center; font-size: 11px; color: var(--p300); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-top: 2px; }
+
+    .reason-title { margin: 0 0 8px; font-size: 14px; font-weight: 800; }
+    .reason-text { margin: 0; color: #efe7ff; line-height: 1.7; font-size: 14px; }
+
+    .insights { margin-top: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .insight { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2); border-radius: 16px; padding: 13px 14px; }
+    .insight span { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--p300); margin-bottom: 4px; font-weight: 800; }
+    .insight strong { font-size: 18px; letter-spacing: -0.02em; }
+
+    .probabilities { margin-top: 18px; display: grid; gap: 12px; }
+    .prob-row { display: grid; gap: 6px; }
+    .prob-top { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 700; }
+    .bar { height: 10px; background: rgba(255,255,255,.16); border-radius: 999px; overflow: hidden; }
+    .fill { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--p300), #fff); box-shadow: 0 0 14px rgba(255,255,255,.6); transition: width .9s cubic-bezier(.2,.8,.2,1); }
+
+    .footer-note { margin-top: 20px; color: var(--p300); font-size: 12px; line-height: 1.55; }
+
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; }
+      .form-panel { position: static; }
+      .result-panel { min-height: auto; }
+      .nav .tag { display: none; }
+    }
+    @media (max-width: 560px) {
+      .page { padding: 14px 14px 40px; }
+      .hero { padding-top: 36px; }
+      .form-panel, .result-panel { padding: 20px; }
+      .input-grid, .insights { grid-template-columns: 1fr; }
+      .actions { flex-direction: column; }
+      .ptop { flex-direction: column-reverse; align-items: flex-start; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="atmos" aria-hidden="true"></div>
+
+  <main class="page">
+    <nav class="nav">
+      <div class="logo">C</div>
+      <b>Customer Intelligence</b>
+      <span class="sp"></span>
+      <span class="tag">Random Forest · DBSCAN segments</span>
+    </nav>
+
+    <header class="hero">
+
+      <h1>Customer Purchase Profile</h1>
+      <p class="lead">
+        Enter the customer's annual spending in each category to see their purchase profile.
+      </p>
+    </header>
+
+    <section class="layout">
+
+      <section class="panel form-panel">
+        <div class="form-head">
+          <h2>Annual spending</h2>
+          <span>6 categories</span>
+        </div>
+
+        <form id="customerForm">
+          <div class="input-grid">
+
+            <div class="field">
+              <label for="fresh"><i></i>Fresh</label>
+              <div class="input-wrap"><input id="fresh" type="number" min="0" step="any" placeholder="12000" required /></div>
+              <div class="meter"><b></b></div>
+            </div>
+
+            <div class="field">
+              <label for="milk"><i></i>Milk</label>
+              <div class="input-wrap"><input id="milk" type="number" min="0" step="any" placeholder="9000" required /></div>
+              <div class="meter"><b></b></div>
+            </div>
+
+            <div class="field">
+              <label for="grocery"><i></i>Grocery</label>
+              <div class="input-wrap"><input id="grocery" type="number" min="0" step="any" placeholder="7500" required /></div>
+              <div class="meter"><b></b></div>
+            </div>
+
+            <div class="field">
+              <label for="frozen"><i></i>Frozen</label>
+              <div class="input-wrap"><input id="frozen" type="number" min="0" step="any" placeholder="500" required /></div>
+              <div class="meter"><b></b></div>
+            </div>
+
+            <div class="field">
+              <label for="detergents_paper"><i></i>Detergents & Paper</label>
+              <div class="input-wrap"><input id="detergents_paper" type="number" min="0" step="any" placeholder="2500" required /></div>
+              <div class="meter"><b></b></div>
+            </div>
+
+            <div class="field">
+              <label for="delicassen"><i></i>Delicassen</label>
+              <div class="input-wrap"><input id="delicassen" type="number" min="0" step="any" placeholder="1500" required /></div>
+              <div class="meter"><b></b></div>
+            </div>
+
+          </div>
+
+          <div class="mixwrap">
+            <div class="mixtop"><span>Live spending mix</span><strong id="liveTotal">0</strong></div>
+            <div class="mix" id="mixBar">
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+
+          <div class="helper">
+            The result depends on spending across all six categories, not only the total.
+          </div>
+
+          <div class="actions">
+            <button class="primary" type="submit">Analyze Customer Profile</button>
+            <button class="secondary" type="reset">Clear</button>
+          </div>
+
+          <div id="status" class="status" role="status" aria-live="polite"></div>
+        </form>
+      </section>
+
+
+      <aside class="panel result-panel">
+        <div>
+
+
+          <h2 id="resultHeading" class="result-title">Ready to analyze</h2>
+
+          <p id="resultMessage" class="result-sub">
+            Enter spending values, then select Analyze Customer Profile.
+          </p>
+
+          <div class="profile-card">
+
+            <div class="ptop">
+              <div>
+                <div class="profile-label">Purchasing Profile</div>
+                <div id="profileName" class="profile-name">—</div>
+                <div id="confidencePill" class="confidence-pill">Waiting for prediction</div>
+              </div>
+
+              <svg class="gauge" viewBox="0 0 108 108" role="img" aria-label="Model confidence">
+                <defs>
+                  <linearGradient id="gg" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#cdb4fe" /><stop offset="1" stop-color="#ffffff" />
+                  </linearGradient>
+                </defs>
+                <circle cx="54" cy="54" r="46" class="gbg" />
+                <circle id="gaugeArc" cx="54" cy="54" r="46" class="gfg" transform="rotate(-90 54 54)" />
+                <text id="gaugeNum" x="54" y="55" class="gn">—</text>
+                <text x="54" y="69" class="gs">confidence</text>
+              </svg>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="radarbox">
+              <svg id="radar" class="radar" viewBox="0 0 300 270" role="img" aria-label="Spending shape across six categories"></svg>
+              <div class="cap">Spending shape · relative to top category</div>
+            </div>
+
+            <div class="divider"></div>
+
+            <h3 class="reason-title">Why this profile?</h3>
+
+            <p id="reasonText" class="reason-text">
+              No prediction yet.
+            </p>
+
+            <div class="insights">
+              <div class="insight">
+                <span>Total entered spending</span>
+                <strong id="totalSpending">—</strong>
+              </div>
+
+              <div class="insight">
+                <span>Dominant category</span>
+                <strong id="dominantCategory">—</strong>
+              </div>
+            </div>
+
+            <div id="probabilities" class="probabilities"></div>
+
+          </div>
+        </div>
+
+        <div class="footer-note">
+          Random Forest predicts groups created with DBSCAN. Each group has a descriptive label.
+        </div>
+      </aside>
+
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById("customerForm");
+    const statusBox = document.getElementById("status");
+    const profileNameEl = document.getElementById("profileName");
+    const radar = document.getElementById("radar");
+    const gaugeArc = document.getElementById("gaugeArc");
+    const gaugeNum = document.getElementById("gaugeNum");
+
+    const KEYS = ["fresh", "milk", "grocery", "frozen", "detergents_paper", "delicassen"];
+    const SHORT = { fresh: "Fresh", milk: "Milk", grocery: "Grocery", frozen: "Frozen", detergents_paper: "Det. & Paper", delicassen: "Delicassen" };
+    const MIX_COLORS = ["#4c1d95", "#6d28d9", "#8b5cf6", "#a78bfa", "#c4b5fd", "#ddd0ff"];
+
+    const featureLabels = {
+      fresh: "Fresh",
+      milk: "Milk",
+      grocery: "Grocery",
+      frozen: "Frozen",
+      detergents_paper: "Detergents & Paper",
+      delicassen: "Delicassen"
+    };
+
+    const CIRC = 2 * Math.PI * 46;
+    gaugeArc.style.strokeDasharray = CIRC;
+    gaugeArc.style.strokeDashoffset = CIRC;
+
+    // Turns any leftover cluster keys ("cluster_0", "0", "1") into readable labels
+    function readableLabel(key) {
+      const k = String(key).toLowerCase();
+      if (k === "cluster_0" || k === "0") return "Moderate Spending";
+      if (k === "cluster_1" || k === "1") return "High Spending";
+      return String(key);
+    }
+
+    /* ---------- Live mix bar + tile meters ---------- */
+    const mixSpans = document.querySelectorAll("#mixBar span");
+    mixSpans.forEach((s, i) => (s.style.background = MIX_COLORS[i]));
+
+    function currentValues() {
+      return KEYS.map(k => Math.max(0, Number(document.getElementById(k).value) || 0));
+    }
+
+    function updateLive() {
+      const vals = currentValues();
+      const total = vals.reduce((a, b) => a + b, 0);
+      document.getElementById("liveTotal").textContent = total.toLocaleString();
+      document.querySelectorAll(".field .meter b").forEach((b, i) => {
+        b.style.width = total ? (vals[i] / total * 100) + "%" : "0";
+      });
+      mixSpans.forEach((s, i) => {
+        s.style.width = total ? (vals[i] / total * 100) + "%" : "0";
+      });
+    }
+    KEYS.forEach(k => document.getElementById(k).addEventListener("input", updateLive));
+
+    /* ---------- Radar chart ---------- */
+    function pt(i, r) {
+      const a = -Math.PI / 2 + i * 2 * Math.PI / KEYS.length;
+      return [150 + r * Math.cos(a), 135 + r * Math.sin(a)];
+    }
+
+    function drawRadar(payload) {
+      const R = 86;
+      let g = "";
+      [0.33, 0.66, 1].forEach(f => {
+        g += `<polygon class="rg" points="${KEYS.map((_, i) => pt(i, R * f).map(n => n.toFixed(1)).join(",")).join(" ")}"/>`;
+      });
+      KEYS.forEach((k, i) => {
+        const [x, y] = pt(i, R);
+        const [lx, ly] = pt(i, R + 18);
+        const anchor = lx < 140 ? "end" : lx > 160 ? "start" : "middle";
+        g += `<line class="ra" x1="150" y1="135" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+        g += `<text class="rl" x="${lx.toFixed(1)}" y="${(ly + 3).toFixed(1)}" text-anchor="${anchor}">${SHORT[k]}</text>`;
+      });
+      if (payload) {
+        const max = Math.max(...KEYS.map(k => payload[k])) || 1;
+        const pts = KEYS.map((k, i) => pt(i, R * Math.max(0.04, payload[k] / max)));
+        g += `<polygon class="rv" points="${pts.map(p => p.map(n => n.toFixed(1)).join(",")).join(" ")}"/>`;
+        pts.forEach(p => { g += `<circle class="rd" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3"/>`; });
+      }
+      radar.innerHTML = g;
+    }
+    drawRadar(null);
+
+    function setGauge(value) {
+      if (Number.isFinite(value)) {
+        gaugeArc.style.strokeDashoffset = CIRC * (1 - Math.max(0, Math.min(100, value)) / 100);
+        gaugeNum.textContent = Math.round(value) + "%";
+      } else {
+        gaugeArc.style.strokeDashoffset = CIRC;
+        gaugeNum.textContent = "—";
+      }
+    }
+
+    function resetResult() {
+      document.getElementById("resultHeading").textContent = "Ready to analyze";
+      document.getElementById("resultMessage").textContent =
+        "Enter spending values, then select Analyze Customer Profile.";
+      profileNameEl.textContent = "—";
+      profileNameEl.className = "profile-name";
+      document.getElementById("confidencePill").textContent = "Waiting for prediction";
+      document.getElementById("reasonText").textContent = "No prediction yet.";
+      document.getElementById("totalSpending").textContent = "—";
+      document.getElementById("dominantCategory").textContent = "—";
+      document.getElementById("probabilities").innerHTML = "";
+      statusBox.textContent = "";
+      statusBox.className = "status";
+      drawRadar(null);
+      setGauge(NaN);
+      updateLive();
+    }
+
+    form.addEventListener("reset", () => {
+      setTimeout(resetResult, 0);
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const payload = {
+        fresh: Number(document.getElementById("fresh").value),
+        milk: Number(document.getElementById("milk").value),
+        grocery: Number(document.getElementById("grocery").value),
+        frozen: Number(document.getElementById("frozen").value),
+        detergents_paper: Number(document.getElementById("detergents_paper").value),
+        delicassen: Number(document.getElementById("delicassen").value)
+      };
+
+      if (Object.values(payload).some(v => !Number.isFinite(v) || v < 0)) {
+        statusBox.textContent = "Please enter valid non-negative numbers in all fields.";
+        statusBox.className = "status error";
+        return;
+      }
+
+      const total = Object.values(payload).reduce((sum, value) => sum + value, 0);
+
+      const dominantEntry = Object.entries(payload)
+        .sort((a, b) => b[1] - a[1])[0];
+
+      document.getElementById("totalSpending").textContent =
+        total.toLocaleString();
+
+      document.getElementById("dominantCategory").textContent =
+        featureLabels[dominantEntry[0]];
+
+      statusBox.textContent = "Analyzing purchase pattern...";
+      statusBox.className = "status";
+
+      try {
+        const response = await fetch("/predict", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || "Prediction failed.");
+        }
+
+        const prediction = result.prediction;
+        const probabilities = prediction.probabilities || {};
+
+        // Label comes straight from the backend (segment_name); no more raw 0 / 1
+        const profileName = prediction.segment_name || readableLabel(prediction.cluster);
+
+        document.getElementById("resultHeading").textContent = "Profile identified";
+        document.getElementById("resultMessage").textContent =
+          "This is the predicted group for the spending values you entered.";
+
+        profileNameEl.textContent = profileName;
+        profileNameEl.className = "profile-name " + (prediction.cluster === 1 ? "high" : "moderate");
+
+        const confidence = Number.isFinite(Number(prediction.confidence))
+          ? Number(prediction.confidence)
+          : Math.max(...Object.values(probabilities).map(Number));
+
+        document.getElementById("confidencePill").textContent =
+          Number.isFinite(confidence)
+            ? `${confidence}% model confidence`
+            : "Prediction complete";
+
+        setGauge(confidence);
+        drawRadar(payload);
+
+        // Explanation generated by the backend
+        document.getElementById("reasonText").textContent =
+          prediction.why || "This group was predicted from spending across the six categories.";
+
+        const box = document.getElementById("probabilities");
+        box.innerHTML = "";
+
+        Object.entries(probabilities).forEach(([key, value]) => {
+          const row = document.createElement("div");
+          row.className = "prob-row";
+
+          row.innerHTML = `
+            <div class="prob-top">
+              <span>${readableLabel(key)}</span>
+              <strong>${value}%</strong>
+            </div>
+            <div class="bar">
+              <span class="fill" style="width:0"></span>
+            </div>
+          `;
+
+          box.appendChild(row);
+
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            row.querySelector(".fill").style.width =
+              `${Math.max(0, Math.min(100, value))}%`;
+          }));
+        });
+
+        statusBox.textContent = "Profile ready.";
+        statusBox.className = "status success";
+
+      } catch (error) {
+        document.getElementById("resultHeading").textContent = "Prediction unavailable";
+        document.getElementById("resultMessage").textContent =
+          "The frontend could not get a valid response from the Flask backend.";
+        profileNameEl.textContent = "—";
+        profileNameEl.className = "profile-name";
+        document.getElementById("confidencePill").textContent = "No result";
+        document.getElementById("reasonText").textContent =
+          "Make sure Flask is running and open this page through http://127.0.0.1:5000/";
+        document.getElementById("probabilities").innerHTML = "";
+        setGauge(NaN);
+        drawRadar(null);
+
+        statusBox.textContent = error.message;
+        statusBox.className = "status error";
+      }
+    });
+  </script>
+</body>
+</html>
